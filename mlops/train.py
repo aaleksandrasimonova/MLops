@@ -1,9 +1,9 @@
-import git
 import pytorch_lightning as pl
 import torch
+import torch.nn.functional as F
+
 # from dvc import api
 from hydra import compose, initialize
-import torch.nn.functional as F
 
 from .data_module import MNISTDataModule
 from .model import MnistModel
@@ -21,19 +21,21 @@ class MNISTTraineModule(pl.LightningModule):
 
     @staticmethod
     def accuracy(outputs, labels):
-        _, preds = torch.max(outputs, dim = 1)
-        return torch.tensor(torch.sum(preds == labels).item()/ len(preds))
-    
+        _, preds = torch.max(outputs, dim=1)
+        return torch.tensor(torch.sum(preds == labels).item() / len(preds))
+
     def training_step(self, batch, batch_idx):
         images, labels = batch
-        out = self.model(images) 
+        out = self.model(images)
         loss = self.loss(out, labels)
         acc = MNISTTraineModule.accuracy(out.detach(), labels.detach())
 
         metrics = {'loss': loss.detach(), 'accuracy': acc}
-        self.log_dict(metrics, prog_bar=True, on_step=True, on_epoch=True, logger=True)
+        self.log_dict(
+            metrics, prog_bar=True, on_step=True, on_epoch=True, logger=True
+        )
         return loss
-    
+
     def validation_step(self, batch, batch_idx):
         images, labels = batch
         out = self.model(images)
@@ -41,13 +43,14 @@ class MNISTTraineModule(pl.LightningModule):
         acc = MNISTTraineModule.accuracy(out.detach(), labels.detach())
 
         metrics = {'loss': loss.detach(), 'accuracy': acc}
-        self.log_dict(metrics, prog_bar=True, on_step=True, on_epoch=True, logger=True)
+        self.log_dict(
+            metrics, prog_bar=True, on_step=True, on_epoch=True, logger=True
+        )
 
-    
     def configure_optimizers(self):
         optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
         return optimizer
-    
+
 
 def train_model():
     initialize(version_base="1.3", config_path="../config")
@@ -73,7 +76,6 @@ def train_model():
     trainer.fit(train_module, train_dataloader, val_dataloader)
 
     torch.save(train_module.model.state_dict(), config.model.model_path)
-
 
 
 if __name__ == "__main__":

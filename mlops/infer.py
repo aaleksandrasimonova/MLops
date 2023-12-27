@@ -1,11 +1,11 @@
-import torchvision
-from torch.utils.data import DataLoader
-import torch
-from .model import MnistModel
-from .data_module import MNISTDataModule
-from hydra import compose, initialize
-from .train import MNISTTraineModule
 import pandas as pd
+import torch
+import torchvision
+from hydra import compose, initialize
+
+from .data_module import MNISTDataModule
+from .model import MnistModel
+
 
 def evaluate(dataloader, model):
     model.eval()
@@ -19,7 +19,6 @@ def evaluate(dataloader, model):
             y_pred = torch.cat([y_pred, predicted.cpu()])
             y_true = torch.cat([y_true, labels.cpu()])
     return y_pred, y_true
-
 
 
 def infer():
@@ -36,6 +35,7 @@ def infer():
     df = pd.DataFrame({"true": y_true, "pred": y_pred})
     df.to_csv("predict.csv", index=False)
     print('accuracy: ', (y_pred == y_true).sum() / len(y_true))
+
 
 if __name__ == '__main__':
     infer()

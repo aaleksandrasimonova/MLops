@@ -9,4 +9,3 @@ model:
 logger:
     exp: 'exp_mnist'
     path: 'file:./logs'
-
