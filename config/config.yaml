@@ -1,0 +1,12 @@
+model:
+    batch_size: 256
+    num_epochs: 25
+    lr: 0.001
+    input_size: 784
+    num_classes: 10
+    model_path: 'mnist-logistic.pth'
+
+logger:
+    exp: 'exp_mnist'
+    path: 'file:./logs'
+
