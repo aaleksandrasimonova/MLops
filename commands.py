@@ -24,5 +24,9 @@ def test_dvc():
     mlops.data_module.MNISTDataModule.load_data_dvc()
 
 
+def run_server():
+    mlops.infer.run_server()
+
+
 if __name__ == '__main__':
     fire.Fire()

@@ -18,6 +18,8 @@ gitpython = "^3.1.40"
 mlflow = "^2.9.2"
 dvc = "^3.37.0"
 dvc-gdrive = "^3.0.0"
+onnx = "^1.15.0"
+onnxruntime = "^1.16.3"
 
 
 [tool.poetry.group.dev.dependencies]

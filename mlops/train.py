@@ -1,3 +1,4 @@
+import git
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
@@ -10,7 +11,7 @@ from .model import MnistModel
 
 
 class MNISTTraineModule(pl.LightningModule):
-    def __init__(self, conf):
+    def __init__(self, conf, git_id):
         super().__init__()
         self.save_hyperparameters()
 
@@ -52,12 +53,38 @@ class MNISTTraineModule(pl.LightningModule):
         return optimizer
 
 
+def export_to_onnx(model, path_to_onnx):
+    model.eval()
+    test_input = torch.ones((1, 784))
+    torch.onnx.export(
+        model,
+        test_input,
+        path_to_onnx,
+        export_params=True,
+        input_names=["input"],
+        output_names=["output"],
+        dynamic_axes={
+            "input": {0: "BATCH_SIZE"},
+            "output": {0: "BATCH_SIZE"},
+        },
+    )
+
+
+def try_get_commit_id():
+    try:
+        repo = git.Repo(search_parent_directories=True)
+        git_commit_id = repo.head.object.hexsha
+    except git.InvalidGitRepositoryError:
+        git_commit_id = "unknown"
+    return git_commit_id
+
+
 def train_model():
     initialize(version_base="1.3", config_path="../config")
     config = compose("config.yaml")
 
     data_module = MNISTDataModule(batch_size=config.model.batch_size)
-    train_module = MNISTTraineModule(config)
+    train_module = MNISTTraineModule(config, try_get_commit_id())
 
     logger = pl.loggers.MLFlowLogger(
         experiment_name=config.logger.exp,
@@ -76,6 +103,8 @@ def train_model():
     trainer.fit(train_module, train_dataloader, val_dataloader)
 
     torch.save(train_module.model.state_dict(), config.model.model_path)
+
+    export_to_onnx(train_module.model, config.model.model_path_onnx)
 
 
 if __name__ == "__main__":
