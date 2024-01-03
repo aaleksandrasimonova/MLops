@@ -66,7 +66,7 @@ def run_server():
     cfg = compose("config.yaml")
 
     mlflow.set_tracking_uri(cfg.logger.path)
-    # exp = mlflow.set_experiment(cfg.logger.exp)
+    mlflow.set_experiment(cfg.logger.exp)
 
     with mlflow.start_run():
         export_input = torch.ones((1, 784))

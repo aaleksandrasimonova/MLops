@@ -2,6 +2,7 @@ import fire
 
 import mlops.infer
 import mlops.train
+import mlops.triton
 
 
 def hello():
@@ -26,6 +27,10 @@ def test_dvc():
 
 def run_server():
     mlops.infer.run_server()
+
+
+def test_triton():
+    mlops.triton.test_triton()
 
 
 if __name__ == '__main__':
